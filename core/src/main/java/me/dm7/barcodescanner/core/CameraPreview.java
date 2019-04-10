@@ -15,6 +15,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 
+import java.util.Collections;
+import java.util.Comparator;
+
 import java.util.List;
 
 public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback {
@@ -28,6 +31,7 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
     private boolean mShouldScaleToFill = true;
     private Camera.PreviewCallback mPreviewCallback;
     private float mAspectTolerance = 0.1f;
+    protected boolean mSquareViewFinder;
 
     public CameraPreview(Context context, CameraWrapper cameraWrapper, Camera.PreviewCallback previewCallback) {
         super(context);
@@ -57,6 +61,10 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
 
     public void setAspectTolerance(float aspectTolerance) {
         mAspectTolerance = aspectTolerance;
+    }
+    
+    public void setSquareViewFinder(boolean squareViewFinder) {
+        this.mSquareViewFinder = squareViewFinder;
     }
 
     @Override
@@ -227,10 +235,9 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
     }
 
     private Camera.Size getOptimalPreviewSize() {
-        if(mCameraWrapper == null) {
+        if (mCameraWrapper == null) {
             return null;
         }
-
         List<Camera.Size> sizes = mCameraWrapper.mCamera.getParameters().getSupportedPreviewSizes();
         int w = getWidth();
         int h = getHeight();
@@ -240,25 +247,54 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
             w = portraitWidth;
         }
 
-        double targetRatio = (double) w / h;
         if (sizes == null) return null;
 
         Camera.Size optimalSize = null;
         double minDiff = Double.MAX_VALUE;
 
         int targetHeight = h;
+        Collections.sort(sizes, new Comparator<Camera.Size>() {
+            @Override
+            public int compare(Camera.Size lhs, Camera.Size rhs) {
+                return lhs.height - rhs.height;
+            }
+        });
 
-        // Try to find an size match aspect ratio and size
-        for (Camera.Size size : sizes) {
-            double ratio = (double) size.width / size.height;
-            if (Math.abs(ratio - targetRatio) > mAspectTolerance) continue;
-            if (Math.abs(size.height - targetHeight) < minDiff) {
-                optimalSize = size;
-                minDiff = Math.abs(size.height - targetHeight);
+        int orientation = DisplayUtils.getScreenOrientation(getContext());
+        int width;
+        int height;
+        if (mSquareViewFinder) {
+            if (orientation != Configuration.ORIENTATION_PORTRAIT) {
+                height = (int) (getHeight() * ViewFinderView.DEFAULT_SQUARE_DIMENSION_RATIO);
+                width = height;
+            } else {
+                width = (int) (getWidth() * ViewFinderView.DEFAULT_SQUARE_DIMENSION_RATIO);
+                height = width;
+            }
+        } else {
+            if (orientation != Configuration.ORIENTATION_PORTRAIT) {
+                height = (int) (getHeight() * ViewFinderView.LANDSCAPE_HEIGHT_RATIO);
+                width = (int) (ViewFinderView.LANDSCAPE_WIDTH_HEIGHT_RATIO * height);
+            } else {
+                width = (int) (getWidth() * ViewFinderView.PORTRAIT_WIDTH_RATIO);
+                height = (int) (ViewFinderView.PORTRAIT_WIDTH_HEIGHT_RATIO * width);
             }
         }
 
-        // Cannot find the one match the aspect ratio, ignore the requirement
+        if (width > getWidth()) {
+            width = getWidth() - ViewFinderView.MIN_DIMENSION_DIFF;
+        }
+        if (height > getHeight()) {
+            height = getHeight() - ViewFinderView.MIN_DIMENSION_DIFF;
+        }
+
+        for (Camera.Size size : sizes) {
+            if (size.height > height && size.width > width) {
+                optimalSize = size;
+                break;
+            }
+        }
+
         if (optimalSize == null) {
             minDiff = Double.MAX_VALUE;
             for (Camera.Size size : sizes) {

@@ -80,6 +80,7 @@ public abstract class BarcodeScannerView extends FrameLayout implements Camera.P
         mPreview = new CameraPreview(getContext(), cameraWrapper, this);
         mPreview.setAspectTolerance(mAspectTolerance);
         mPreview.setShouldScaleToFill(mShouldScaleToFill);
+        mPreview.setSquareViewFinder(mSquaredFinder);
         if (!mShouldScaleToFill) {
             RelativeLayout relativeLayout = new RelativeLayout(getContext());
             relativeLayout.setGravity(Gravity.CENTER);
