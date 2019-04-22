@@ -94,8 +94,13 @@ public class ZXingScannerView extends BarcodeScannerView {
         mMultiFormatReader.setHints(hints);
     }
 
+    public long lastCameraPreviewScan = 0;
+
     @Override
     public void onPreviewFrame(byte[] data, Camera camera) {
+        Log.d("PREVIEW FRAME",data.length+"");
+        lastCameraPreviewScan = System.currentTimeMillis();
+
         if(mResultHandler == null) {
             return;
         }
