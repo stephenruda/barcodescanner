@@ -101,10 +101,12 @@ public class ZXingScannerView extends BarcodeScannerView {
         long currentTime = System.currentTimeMillis();
         if(lastCameraPreviewScan+500 > currentTime) {
             // Only handle results every half second
+            Log.d("Ignore","Too Fast");
             return;
         }
 
         lastCameraPreviewScan = currentTime;
+        Log.d("PREVIEW",lastCameraPreviewScan+"");
 
         if(mResultHandler == null) {
             return;
@@ -155,6 +157,8 @@ public class ZXingScannerView extends BarcodeScannerView {
                     }
                 }
             }
+
+            Log.d("HANDLE","HANDLE RESULT");
 
             final Result finalRawResult = rawResult;
 
