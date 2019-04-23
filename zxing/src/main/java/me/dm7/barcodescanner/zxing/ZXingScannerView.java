@@ -102,6 +102,7 @@ public class ZXingScannerView extends BarcodeScannerView {
         if(lastCameraPreviewScan+500 > currentTime) {
             // Only handle results every half second
             Log.d("Ignore","Too Fast");
+            camera.setOneShotPreviewCallback(this);
             return;
         }
 
