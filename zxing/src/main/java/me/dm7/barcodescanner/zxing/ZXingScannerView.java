@@ -99,12 +99,12 @@ public class ZXingScannerView extends BarcodeScannerView {
     @Override
     public void onPreviewFrame(byte[] data, Camera camera) {
         long currentTime = System.currentTimeMillis();
-        if(lastCameraPreviewScan+500 > currentTime) {
-            // Only handle results every half second
-            Log.d("Ignore","Too Fast");
-            camera.setOneShotPreviewCallback(this);
-            return;
-        }
+//        if(lastCameraPreviewScan+500 > currentTime) {
+//            // Only handle results every half second
+//            Log.d("Ignore","Too Fast");
+//            camera.setOneShotPreviewCallback(this);
+//            return;
+//        }
 
         lastCameraPreviewScan = currentTime;
         Log.d("PREVIEW",lastCameraPreviewScan+"");
