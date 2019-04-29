@@ -107,7 +107,6 @@ public class ZXingScannerView extends BarcodeScannerView {
 //        }
 
         lastCameraPreviewScan = currentTime;
-        Log.d("PREVIEW",lastCameraPreviewScan+"");
 
         if(mResultHandler == null) {
             return;
