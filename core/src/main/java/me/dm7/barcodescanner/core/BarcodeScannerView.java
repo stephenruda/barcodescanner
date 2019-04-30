@@ -46,6 +46,7 @@ public abstract class BarcodeScannerView extends FrameLayout implements Camera.P
     }
 
     public final void setupLayout() {
+
         removeAllViews();
 
         mPreview = new CameraPreview(getContext());
@@ -62,6 +63,7 @@ public abstract class BarcodeScannerView extends FrameLayout implements Camera.P
             addView(mPreview);
         }
 
+        mViewFinderView = createViewFinderView(getContext());
         if (mViewFinderView instanceof View) {
             addView((View) mViewFinderView);
         } else {
