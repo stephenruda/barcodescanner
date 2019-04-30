@@ -37,16 +37,41 @@ public abstract class BarcodeScannerView extends FrameLayout implements Camera.P
 
     public BarcodeScannerView(Context context) {
         super(context);
+        mViewFinderView = createViewFinderView(getContext());
         setupLayout();
     }
 
     public BarcodeScannerView(Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
+
+        TypedArray a = context.getTheme().obtainStyledAttributes(
+                attributeSet,
+                R.styleable.BarcodeScannerView,
+                0, 0);
+
+        try {
+            setShouldScaleToFill(a.getBoolean(R.styleable.BarcodeScannerView_shouldScaleToFill, true));
+            mIsLaserEnabled = a.getBoolean(R.styleable.BarcodeScannerView_laserEnabled, mIsLaserEnabled);
+            mLaserColor = a.getColor(R.styleable.BarcodeScannerView_laserColor, mLaserColor);
+            mBorderColor = a.getColor(R.styleable.BarcodeScannerView_borderColor, mBorderColor);
+            mMaskColor = a.getColor(R.styleable.BarcodeScannerView_maskColor, mMaskColor);
+            mBorderWidth = a.getDimensionPixelSize(R.styleable.BarcodeScannerView_borderWidth, mBorderWidth);
+            mBorderLength = a.getDimensionPixelSize(R.styleable.BarcodeScannerView_borderLength, mBorderLength);
+
+            mRoundedCorner = a.getBoolean(R.styleable.BarcodeScannerView_roundedCorner, mRoundedCorner);
+            mCornerRadius = a.getDimensionPixelSize(R.styleable.BarcodeScannerView_cornerRadius, mCornerRadius);
+            mSquaredFinder = a.getBoolean(R.styleable.BarcodeScannerView_squaredFinder, mSquaredFinder);
+            mBorderAlpha = a.getFloat(R.styleable.BarcodeScannerView_borderAlpha, mBorderAlpha);
+            mViewFinderOffset = a.getDimensionPixelSize(R.styleable.BarcodeScannerView_finderOffset, mViewFinderOffset);
+        } finally {
+            a.recycle();
+        }
+
+        mViewFinderView = createViewFinderView(getContext());
         setupLayout();
     }
 
     public final void setupLayout() {
-
         removeAllViews();
 
         mPreview = new CameraPreview(getContext());
@@ -63,7 +88,6 @@ public abstract class BarcodeScannerView extends FrameLayout implements Camera.P
             addView(mPreview);
         }
 
-        mViewFinderView = createViewFinderView(getContext());
         if (mViewFinderView instanceof View) {
             addView((View) mViewFinderView);
         } else {
