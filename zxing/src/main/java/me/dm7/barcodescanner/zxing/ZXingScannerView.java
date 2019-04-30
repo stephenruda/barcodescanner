@@ -4,8 +4,6 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.Rect;
 import android.hardware.Camera;
-import android.os.Handler;
-import android.os.Looper;
 import android.util.AttributeSet;
 import android.util.Log;
 
@@ -160,22 +158,8 @@ public class ZXingScannerView extends BarcodeScannerView {
             final Result finalRawResult = rawResult;
 
             if (finalRawResult != null) {
-                Handler handler = new Handler(Looper.getMainLooper());
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        // Stopping the preview can take a little long.
-                        // So we want to set result handler to null to discard subsequent calls to
-                        // onPreviewFrame.
-                        ResultHandler tmpResultHandler = mResultHandler;
-                        mResultHandler = null;
-
-                        stopCameraPreview();
-                        if (tmpResultHandler != null) {
-                            tmpResultHandler.handleResult(finalRawResult);
-                        }
-                    }
-                });
+                stopCamera();
+                mResultHandler.handleResult(rawResult);
             } else {
                 camera.setOneShotPreviewCallback(this);
             }
