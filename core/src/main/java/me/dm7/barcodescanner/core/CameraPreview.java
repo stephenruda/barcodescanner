@@ -23,7 +23,8 @@ import java.util.List;
 public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback {
     private static final String TAG = "CameraPreview";
 
-    private CameraWrapper mCameraWrapper;
+    private int mCameraId;
+    private Camera mCamera;
     private Handler mAutoFocusHandler;
     private boolean mPreviewing = true;
     private boolean mAutoFocus = true;
@@ -33,26 +34,31 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
     private float mAspectTolerance = 0.1f;
     protected boolean mSquareViewFinder;
 
-    public CameraPreview(Context context, CameraWrapper cameraWrapper, Camera.PreviewCallback previewCallback) {
+    public CameraPreview(Context context) {
         super(context);
-        init(cameraWrapper, previewCallback);
     }
 
-    public CameraPreview(Context context, AttributeSet attrs, CameraWrapper cameraWrapper, Camera.PreviewCallback previewCallback) {
+    public CameraPreview(Context context, AttributeSet attrs) {
         super(context, attrs);
-        init(cameraWrapper, previewCallback);
     }
 
-    public void init(CameraWrapper cameraWrapper, Camera.PreviewCallback previewCallback) {
-        setCamera(cameraWrapper, previewCallback);
-        mAutoFocusHandler = new Handler();
-        getHolder().addCallback(this);
-        getHolder().setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
-    }
-
-    public void setCamera(CameraWrapper cameraWrapper, Camera.PreviewCallback previewCallback) {
-        mCameraWrapper = cameraWrapper;
+    public void setCamera(Camera camera, int camera_id, Camera.PreviewCallback previewCallback) {
+        mCameraId = camera_id;
+        mCamera = camera;
         mPreviewCallback = previewCallback;
+        mAutoFocusHandler = new Handler();
+    }
+
+    public void initCameraPreview() {
+        if(mCamera != null) {
+            getHolder().addCallback(this);
+            getHolder().setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+            if(mPreviewing) {
+                requestLayout();
+            } else {
+                showCameraPreview();
+            }
+        }
     }
 
     public void setShouldScaleToFill(boolean scaleToFill) {
@@ -88,15 +94,14 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
     }
 
     public void showCameraPreview() {
-        if(mCameraWrapper != null) {
+        if(mCamera != null) {
             try {
-                getHolder().addCallback(this);
                 mPreviewing = true;
                 setupCameraParameters();
-                mCameraWrapper.mCamera.setPreviewDisplay(getHolder());
-                mCameraWrapper.mCamera.setDisplayOrientation(getDisplayOrientation());
-                mCameraWrapper.mCamera.setOneShotPreviewCallback(mPreviewCallback);
-                mCameraWrapper.mCamera.startPreview();
+                mCamera.setPreviewDisplay(getHolder());
+                mCamera.setDisplayOrientation(getDisplayOrientation());
+                mCamera.setOneShotPreviewCallback(mPreviewCallback);
+                mCamera.startPreview();
                 if(mAutoFocus) {
                     if (mSurfaceCreated) { // check if surface created before using autofocus
                         safeAutoFocus();
@@ -112,7 +117,7 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
 
     public void safeAutoFocus() {
         try {
-            mCameraWrapper.mCamera.autoFocus(autoFocusCB);
+            mCamera.autoFocus(autoFocusCB);
         } catch (RuntimeException re) {
             // Horrible hack to deal with autofocus errors on Sony devices
             // See https://github.com/dm77/barcodescanner/issues/7 for example
@@ -121,13 +126,12 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
     }
 
     public void stopCameraPreview() {
-        if(mCameraWrapper != null) {
+        if(mCamera != null) {
             try {
                 mPreviewing = false;
-                getHolder().removeCallback(this);
-                mCameraWrapper.mCamera.cancelAutoFocus();
-                mCameraWrapper.mCamera.setOneShotPreviewCallback(null);
-                mCameraWrapper.mCamera.stopPreview();
+                mCamera.cancelAutoFocus();
+                mCamera.setOneShotPreviewCallback(null);
+                mCamera.stopPreview();
             } catch(Exception e) {
                 Log.e(TAG, e.toString(), e);
             }
@@ -136,9 +140,9 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
 
     public void setupCameraParameters() {
         Camera.Size optimalSize = getOptimalPreviewSize();
-        Camera.Parameters parameters = mCameraWrapper.mCamera.getParameters();
+        Camera.Parameters parameters = mCamera.getParameters();
         parameters.setPreviewSize(optimalSize.width, optimalSize.height);
-        mCameraWrapper.mCamera.setParameters(parameters);
+        mCamera.setParameters(parameters);
         adjustViewSize(optimalSize);
     }
 
@@ -200,16 +204,16 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
     }
 
     public int getDisplayOrientation() {
-        if (mCameraWrapper == null) {
+        if (mCamera == null) {
             //If we don't have a camera set there is no orientation so return dummy value
             return 0;
         }
 
         Camera.CameraInfo info = new Camera.CameraInfo();
-        if(mCameraWrapper.mCameraId == -1) {
+        if(mCameraId == -1) {
             Camera.getCameraInfo(Camera.CameraInfo.CAMERA_FACING_BACK, info);
         } else {
-            Camera.getCameraInfo(mCameraWrapper.mCameraId, info);
+            Camera.getCameraInfo(mCameraId, info);
         }
 
         WindowManager wm = (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);
@@ -235,10 +239,10 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
     }
 
     private Camera.Size getOptimalPreviewSize() {
-        if (mCameraWrapper == null) {
+        if (mCamera == null) {
             return null;
         }
-        List<Camera.Size> sizes = mCameraWrapper.mCamera.getParameters().getSupportedPreviewSizes();
+        List<Camera.Size> sizes = mCamera.getParameters().getSupportedPreviewSizes();
         int w = getWidth();
         int h = getHeight();
         if (DisplayUtils.getScreenOrientation(getContext()) == Configuration.ORIENTATION_PORTRAIT) {
@@ -308,7 +312,7 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
     }
 
     public void setAutoFocus(boolean state) {
-        if(mCameraWrapper != null && mPreviewing) {
+        if(mCamera != null && mPreviewing) {
             if(state == mAutoFocus) {
                 return;
             }
@@ -322,14 +326,14 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
                 }
             } else {
                 Log.v(TAG, "Cancelling autofocus");
-                mCameraWrapper.mCamera.cancelAutoFocus();
+                mCamera.cancelAutoFocus();
             }
         }
     }
 
     private Runnable doAutoFocus = new Runnable() {
         public void run() {
-            if(mCameraWrapper != null && mPreviewing && mAutoFocus && mSurfaceCreated) {
+            if(mCamera != null && mPreviewing && mAutoFocus && mSurfaceCreated) {
                 safeAutoFocus();
             }
         }
