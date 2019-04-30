@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.Rect;
 import android.hardware.Camera;
+import android.os.SystemClock;
 import android.util.AttributeSet;
 import android.util.Log;
 
@@ -96,14 +97,14 @@ public class ZXingScannerView extends BarcodeScannerView {
 
     @Override
     public void onPreviewFrame(byte[] data, Camera camera) {
-        long currentTime = System.currentTimeMillis();
-//        if(lastCameraPreviewScan+200 > currentTime) {
-//            // Only handle results every half second
-//            camera.setOneShotPreviewCallback(this);
-//            return;
-//        }
+        long currentUpTime = SystemClock.uptimeMillis();
+        if(lastCameraPreviewScan+200 > currentUpTime) {
+            // Only handle results every 200ms
+            camera.setOneShotPreviewCallback(this);
+            return;
+        }
 
-        lastCameraPreviewScan = currentTime;
+        lastCameraPreviewScan = currentUpTime;
 
         if(mResultHandler == null) {
             return;
