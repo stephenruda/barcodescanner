@@ -74,6 +74,7 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
 
     @Override
     public void surfaceChanged(SurfaceHolder surfaceHolder, int i, int i2, int i3) {
+        Log.d("Surface Changed","Surface Changed");
         if(surfaceHolder.getSurface() == null) {
             return;
         }
@@ -88,6 +89,7 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
     }
 
     public void showCameraPreview() {
+        Log.d("Show Camera Preview","Show Camera Preview");
         if(mCameraWrapper != null) {
             try {
                 getHolder().addCallback(this);
@@ -135,6 +137,7 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
     }
 
     public void setupCameraParameters() {
+        Log.d("Setup Camera Params","Setup Camera Params");
         Camera.Size optimalSize = getOptimalPreviewSize();
         Camera.Parameters parameters = mCameraWrapper.mCamera.getParameters();
         parameters.setPreviewSize(optimalSize.width, optimalSize.height);
