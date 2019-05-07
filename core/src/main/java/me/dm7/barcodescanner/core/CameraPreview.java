@@ -25,7 +25,7 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
     private boolean mPreviewing = true;
     private boolean mAutoFocus = true;
     private boolean mSurfaceCreated = false;
-    private boolean mShouldScaleToFill = true;
+    private boolean mShouldScaleToFill = false;
     private Camera.PreviewCallback mPreviewCallback;
     private float mAspectTolerance = 0.1f;
 
@@ -138,20 +138,9 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
     }
 
     private void adjustViewSize(Camera.Size cameraSize) {
-
-        Log.d("AVS-CameraW",cameraSize.width+"");
-        Log.d("AVS-CameraH",cameraSize.height+"");
-
-        Log.d("AVS-Wid",getWidth()+"");
-        Log.d("AVS-Hei",getHeight()+"");
-
         Point previewSize = convertSizeToLandscapeOrientation(new Point(getWidth(), getHeight()));
         float cameraRatio = ((float) cameraSize.width) / cameraSize.height;
         float screenRatio = ((float) previewSize.x) / previewSize.y;
-
-        Log.d("AVS-PreviewX",previewSize.x+"");
-        Log.d("AVS-PreviewY", previewSize.y+"");
-
         if (screenRatio > cameraRatio) {
             setViewSize((int) (previewSize.y * cameraRatio), previewSize.y);
         } else {
@@ -201,9 +190,6 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
 
         layoutParams.width = tmpWidth;
         layoutParams.height = tmpHeight;
-
-        Log.d("ViewSize",tmpWidth+"");
-        Log.d("ViewHeight",tmpHeight+"");
         setLayoutParams(layoutParams);
     }
 
