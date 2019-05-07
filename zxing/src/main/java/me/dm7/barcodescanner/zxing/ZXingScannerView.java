@@ -2,7 +2,6 @@ package me.dm7.barcodescanner.zxing;
 
 import android.content.Context;
 import android.content.res.Configuration;
-import android.graphics.Rect;
 import android.hardware.Camera;
 import android.os.SystemClock;
 import android.util.AttributeSet;
@@ -98,7 +97,7 @@ public class ZXingScannerView extends BarcodeScannerView {
     @Override
     public void onPreviewFrame(byte[] data, Camera camera) {
         long currentUpTime = SystemClock.uptimeMillis();
-        if(lastCameraPreviewScan+200 > currentUpTime) {
+        if(lastCameraPreviewScan+250 > currentUpTime) {
             // Only handle results every 200ms
             camera.setOneShotPreviewCallback(this);
             return;
@@ -159,7 +158,7 @@ public class ZXingScannerView extends BarcodeScannerView {
             final Result finalRawResult = rawResult;
 
             if (finalRawResult != null) {
-                stopCamera();
+                stopCameraPreview();
                 mResultHandler.handleResult(rawResult);
             } else {
                 camera.setOneShotPreviewCallback(this);
@@ -176,16 +175,11 @@ public class ZXingScannerView extends BarcodeScannerView {
     }
 
     public PlanarYUVLuminanceSource buildLuminanceSource(byte[] data, int width, int height) {
-        Rect rect = getFramingRectInPreview(width, height);
-        if (rect == null) {
-            return null;
-        }
         // Go ahead and assume it's YUV rather than die.
         PlanarYUVLuminanceSource source = null;
 
         try {
-            source = new PlanarYUVLuminanceSource(data, width, height, rect.left, rect.top,
-                    rect.width(), rect.height(), false);
+            source = new PlanarYUVLuminanceSource(data, width, height, 0, 0, width, height, false);
         } catch(Exception e) {
         }
 
