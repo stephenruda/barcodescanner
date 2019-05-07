@@ -81,6 +81,9 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
         }
         stopCameraPreview();
         showCameraPreview();
+
+        Log.d("W",getWidth()+"");
+        Log.d("H",getHeight()+"");
     }
 
     @Override
@@ -147,6 +150,12 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
     }
 
     private void adjustViewSize(Camera.Size cameraSize) {
+        Log.d("AVS","AVS");
+        Log.d("AVS-W",getWidth()+"");
+        Log.d("AVS-H",getHeight()+"");
+        Log.d("Optimal-W",cameraSize.width+"");
+        Log.d("Optimal-H",cameraSize.height+"");
+
         Point previewSize = convertSizeToLandscapeOrientation(new Point(getWidth(), getHeight()));
         float cameraRatio = ((float) cameraSize.width) / cameraSize.height;
         float screenRatio = ((float) previewSize.x) / previewSize.y;
