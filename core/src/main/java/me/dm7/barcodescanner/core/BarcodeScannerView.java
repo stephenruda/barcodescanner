@@ -17,7 +17,6 @@ public abstract class BarcodeScannerView extends FrameLayout implements Camera.P
 
     private CameraWrapper mCameraWrapper;
     protected CameraPreview mPreview;
-    private IViewFinder mViewFinderView;
     private Rect mFramingRectInPreview;
     private Boolean mFlashState;
     private boolean mAutofocusState = true;
@@ -71,7 +70,6 @@ public abstract class BarcodeScannerView extends FrameLayout implements Camera.P
     }
 
     private void init() {
-        mViewFinderView = createViewFinderView(getContext());
     }
 
     public final void setupLayout(CameraWrapper cameraWrapper) {
@@ -94,87 +92,6 @@ public abstract class BarcodeScannerView extends FrameLayout implements Camera.P
         } else {
             addView(mPreview);
         }
-
-        if (mViewFinderView instanceof View) {
-            addView((View) mViewFinderView);
-        } else {
-            throw new IllegalArgumentException("IViewFinder object returned by " +
-                    "'createViewFinderView()' should be instance of android.view.View");
-        }
-    }
-
-    /**
-     * <p>Method that creates view that represents visual appearance of a barcode scanner</p>
-     * <p>Override it to provide your own view for visual appearance of a barcode scanner</p>
-     *
-     * @param context {@link Context}
-     * @return {@link android.view.View} that implements {@link ViewFinderView}
-     */
-    protected IViewFinder createViewFinderView(Context context) {
-        ViewFinderView viewFinderView = new ViewFinderView(context);
-        viewFinderView.setBorderColor(mBorderColor);
-        viewFinderView.setLaserColor(mLaserColor);
-        viewFinderView.setLaserEnabled(mIsLaserEnabled);
-        viewFinderView.setBorderStrokeWidth(mBorderWidth);
-        viewFinderView.setBorderLineLength(mBorderLength);
-        viewFinderView.setMaskColor(mMaskColor);
-
-        viewFinderView.setBorderCornerRounded(mRoundedCorner);
-        viewFinderView.setBorderCornerRadius(mCornerRadius);
-        viewFinderView.setSquareViewFinder(mSquaredFinder);
-        viewFinderView.setViewFinderOffset(mViewFinderOffset);
-        return viewFinderView;
-    }
-
-    public void setLaserColor(int laserColor) {
-        mLaserColor = laserColor;
-        mViewFinderView.setLaserColor(mLaserColor);
-        mViewFinderView.setupViewFinder();
-    }
-    public void setMaskColor(int maskColor) {
-        mMaskColor = maskColor;
-        mViewFinderView.setMaskColor(mMaskColor);
-        mViewFinderView.setupViewFinder();
-    }
-    public void setBorderColor(int borderColor) {
-        mBorderColor = borderColor;
-        mViewFinderView.setBorderColor(mBorderColor);
-        mViewFinderView.setupViewFinder();
-    }
-    public void setBorderStrokeWidth(int borderStrokeWidth) {
-        mBorderWidth = borderStrokeWidth;
-        mViewFinderView.setBorderStrokeWidth(mBorderWidth);
-        mViewFinderView.setupViewFinder();
-    }
-    public void setBorderLineLength(int borderLineLength) {
-        mBorderLength = borderLineLength;
-        mViewFinderView.setBorderLineLength(mBorderLength);
-        mViewFinderView.setupViewFinder();
-    }
-    public void setLaserEnabled(boolean isLaserEnabled) {
-        mIsLaserEnabled = isLaserEnabled;
-        mViewFinderView.setLaserEnabled(mIsLaserEnabled);
-        mViewFinderView.setupViewFinder();
-    }
-    public void setIsBorderCornerRounded(boolean isBorderCornerRounded) {
-        mRoundedCorner = isBorderCornerRounded;
-        mViewFinderView.setBorderCornerRounded(mRoundedCorner);
-        mViewFinderView.setupViewFinder();
-    }
-    public void setBorderCornerRadius(int borderCornerRadius) {
-        mCornerRadius = borderCornerRadius;
-        mViewFinderView.setBorderCornerRadius(mCornerRadius);
-        mViewFinderView.setupViewFinder();
-    }
-    public void setSquareViewFinder(boolean isSquareViewFinder) {
-        mSquaredFinder = isSquareViewFinder;
-        mViewFinderView.setSquareViewFinder(mSquaredFinder);
-        mViewFinderView.setupViewFinder();
-    }
-    public void setBorderAlpha(float borderAlpha) {
-        mBorderAlpha = borderAlpha;
-        mViewFinderView.setBorderAlpha(mBorderAlpha);
-        mViewFinderView.setupViewFinder();
     }
 
     public void startCamera(int cameraId) {
@@ -186,7 +103,6 @@ public abstract class BarcodeScannerView extends FrameLayout implements Camera.P
         mCameraWrapper = cameraWrapper;
         if(mCameraWrapper != null) {
             setupLayout(mCameraWrapper);
-            mViewFinderView.setupViewFinder();
             if(mFlashState != null) {
                 setFlash(mFlashState);
             }
@@ -217,32 +133,6 @@ public abstract class BarcodeScannerView extends FrameLayout implements Camera.P
         if(mPreview != null) {
             mPreview.showCameraPreview();
         }
-    }
-
-    public synchronized Rect getFramingRectInPreview(int previewWidth, int previewHeight) {
-        if (mFramingRectInPreview == null) {
-            Rect framingRect = mViewFinderView.getFramingRect();
-            int viewFinderViewWidth = mViewFinderView.getWidth();
-            int viewFinderViewHeight = mViewFinderView.getHeight();
-            if (framingRect == null || viewFinderViewWidth == 0 || viewFinderViewHeight == 0) {
-                return null;
-            }
-
-            Rect rect = new Rect(framingRect);
-
-            if(previewWidth < viewFinderViewWidth) {
-                rect.left = rect.left * previewWidth / viewFinderViewWidth;
-                rect.right = rect.right * previewWidth / viewFinderViewWidth;
-            }
-
-            if(previewHeight < viewFinderViewHeight) {
-                rect.top = rect.top * previewHeight / viewFinderViewHeight;
-                rect.bottom = rect.bottom * previewHeight / viewFinderViewHeight;
-            }
-
-            mFramingRectInPreview = rect;
-        }
-        return mFramingRectInPreview;
     }
 
     public void setFlash(boolean flag) {
