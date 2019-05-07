@@ -20,6 +20,7 @@ import java.util.List;
 import me.dm7.barcodescanner.core.BarcodeScannerView;
 import me.dm7.barcodescanner.core.DisplayUtils;
 
+
 public class ZBarScannerView extends BarcodeScannerView {
 
     public interface ResultHandler {

@@ -28,6 +28,11 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
     private boolean mShouldScaleToFill = false;
     private Camera.PreviewCallback mPreviewCallback;
     private float mAspectTolerance = 0.1f;
+    private OnPreviewWindowChangedCallback previewWindowChangedCallback;
+
+    public interface OnPreviewWindowChangedCallback {
+        public void onChanged(int width, int height);
+    }
 
     public CameraPreview(Context context, CameraWrapper cameraWrapper, Camera.PreviewCallback previewCallback) {
         super(context);
@@ -37,6 +42,10 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
     public CameraPreview(Context context, AttributeSet attrs, CameraWrapper cameraWrapper, Camera.PreviewCallback previewCallback) {
         super(context, attrs);
         init(cameraWrapper, previewCallback);
+    }
+
+    public void setOnPreviewWindowChangedCallback(OnPreviewWindowChangedCallback previewWindowChangedCallback) {
+        this.previewWindowChangedCallback = previewWindowChangedCallback;
     }
 
     public void init(CameraWrapper cameraWrapper, Camera.PreviewCallback previewCallback) {
@@ -145,6 +154,10 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
             setViewSize((int) (previewSize.y * cameraRatio), previewSize.y);
         } else {
             setViewSize(previewSize.x, (int) (previewSize.x / cameraRatio));
+        }
+
+        if(previewWindowChangedCallback != null) {
+            previewWindowChangedCallback.onChanged(getWidth(), getHeight());
         }
     }
 
