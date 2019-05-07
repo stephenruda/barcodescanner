@@ -143,9 +143,19 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
     }
 
     private void adjustViewSize(Camera.Size cameraSize) {
+
+        Log.d("AVS-CameraW",cameraSize.width+"");
+        Log.d("AVS-CameraH",cameraSize.height+"");
+
+        Log.d("AVS-Wid",getWidth()+"");
+        Log.d("AVS-Hei",getHeight()+"");
+
         Point previewSize = convertSizeToLandscapeOrientation(new Point(getWidth(), getHeight()));
         float cameraRatio = ((float) cameraSize.width) / cameraSize.height;
         float screenRatio = ((float) previewSize.x) / previewSize.y;
+
+        Log.d("AVS-PreviewX",previewSize.x+"");
+        Log.d("AVS-PreviewY", previewSize.y+"");
 
         if (screenRatio > cameraRatio) {
             setViewSize((int) (previewSize.y * cameraRatio), previewSize.y);
