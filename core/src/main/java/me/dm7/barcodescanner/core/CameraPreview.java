@@ -28,7 +28,6 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
     private boolean mShouldScaleToFill = true;
     private Camera.PreviewCallback mPreviewCallback;
     private float mAspectTolerance = 0.1f;
-    protected boolean mSquareViewFinder;
 
     public CameraPreview(Context context, CameraWrapper cameraWrapper, Camera.PreviewCallback previewCallback) {
         super(context);
@@ -58,10 +57,6 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
 
     public void setAspectTolerance(float aspectTolerance) {
         mAspectTolerance = aspectTolerance;
-    }
-    
-    public void setSquareViewFinder(boolean squareViewFinder) {
-        this.mSquareViewFinder = squareViewFinder;
     }
 
     @Override
@@ -206,6 +201,9 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
 
         layoutParams.width = tmpWidth;
         layoutParams.height = tmpHeight;
+
+        Log.d("ViewSize",tmpWidth+"");
+        Log.d("ViewHeight",tmpHeight+"");
         setLayoutParams(layoutParams);
     }
 
@@ -286,6 +284,7 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
                 }
             }
         }
+
         return optimalSize;
     }
 

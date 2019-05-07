@@ -30,7 +30,6 @@ public abstract class BarcodeScannerView extends FrameLayout implements Camera.P
     private int mBorderLength = getResources().getInteger(R.integer.viewfinder_border_length);
     private boolean mRoundedCorner = false;
     private int mCornerRadius = 0;
-    private boolean mSquaredFinder = false;
     private float mBorderAlpha = 1.0f;
     private int mViewFinderOffset = 0;
     private float mAspectTolerance = 0.1f;
@@ -59,7 +58,6 @@ public abstract class BarcodeScannerView extends FrameLayout implements Camera.P
 
             mRoundedCorner = a.getBoolean(R.styleable.BarcodeScannerView_roundedCorner, mRoundedCorner);
             mCornerRadius = a.getDimensionPixelSize(R.styleable.BarcodeScannerView_cornerRadius, mCornerRadius);
-            mSquaredFinder = a.getBoolean(R.styleable.BarcodeScannerView_squaredFinder, mSquaredFinder);
             mBorderAlpha = a.getFloat(R.styleable.BarcodeScannerView_borderAlpha, mBorderAlpha);
             mViewFinderOffset = a.getDimensionPixelSize(R.styleable.BarcodeScannerView_finderOffset, mViewFinderOffset);
         } finally {
@@ -81,7 +79,6 @@ public abstract class BarcodeScannerView extends FrameLayout implements Camera.P
         mPreview = new CameraPreview(getContext(), cameraWrapper, this);
         mPreview.setAspectTolerance(mAspectTolerance);
         mPreview.setShouldScaleToFill(mShouldScaleToFill);
-        mPreview.setSquareViewFinder(mSquaredFinder);
         mPreview.setBackgroundColor(Color.TRANSPARENT);
         if (!mShouldScaleToFill) {
             RelativeLayout relativeLayout = new RelativeLayout(getContext());
