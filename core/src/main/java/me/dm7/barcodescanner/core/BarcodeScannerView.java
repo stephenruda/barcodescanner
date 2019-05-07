@@ -7,6 +7,7 @@ import android.graphics.Rect;
 import android.hardware.Camera;
 import android.support.annotation.ColorInt;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -76,10 +77,14 @@ public abstract class BarcodeScannerView extends FrameLayout implements Camera.P
     public final void setupLayout(CameraWrapper cameraWrapper) {
         removeAllViews();
 
+        Log.d("SIZE-W",cameraWrapper.mCamera.getParameters().getPreviewSize().width+"");
+        Log.d("SIZE-H",cameraWrapper.mCamera.getParameters().getPreviewSize().height+"");
+
         mPreview = new CameraPreview(getContext(), cameraWrapper, this);
         mPreview.setAspectTolerance(mAspectTolerance);
         mPreview.setShouldScaleToFill(mShouldScaleToFill);
         mPreview.setSquareViewFinder(mSquaredFinder);
+        mPreview.setBackgroundColor(Color.TRANSPARENT);
         if (!mShouldScaleToFill) {
             RelativeLayout relativeLayout = new RelativeLayout(getContext());
             relativeLayout.setGravity(Gravity.CENTER);
