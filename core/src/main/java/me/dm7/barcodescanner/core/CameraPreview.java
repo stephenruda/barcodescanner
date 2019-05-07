@@ -166,7 +166,11 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
         }
 
         if(previewWindowChangedCallback != null) {
+            Log.d("CALLBACK SET","CALLBACK");
             previewWindowChangedCallback.onChanged(getWidth(), getHeight());
+        }
+        else {
+            Log.d("CALLBACK NOT SET","CALLBACK");
         }
     }
 
