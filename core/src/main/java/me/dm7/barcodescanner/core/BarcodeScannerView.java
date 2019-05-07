@@ -16,6 +16,7 @@ public abstract class BarcodeScannerView extends FrameLayout implements Camera.P
     private boolean mAutofocusState = true;
     private boolean mShouldScaleToFill = false;
     private float mAspectTolerance = 0.1f;
+    private CameraPreview.OnPreviewWindowChangedCallback previewWindowChangedCallback;
 
     public BarcodeScannerView(Context context) {
         super(context);
@@ -31,6 +32,7 @@ public abstract class BarcodeScannerView extends FrameLayout implements Camera.P
         mPreview.setAspectTolerance(mAspectTolerance);
         mPreview.setShouldScaleToFill(mShouldScaleToFill);
         mPreview.setBackgroundColor(Color.TRANSPARENT);
+        mPreview.setOnPreviewWindowChangedCallback(previewWindowChangedCallback);
         if (!mShouldScaleToFill) {
             RelativeLayout relativeLayout = new RelativeLayout(getContext());
             relativeLayout.setGravity(Gravity.CENTER);
@@ -43,7 +45,7 @@ public abstract class BarcodeScannerView extends FrameLayout implements Camera.P
     }
 
     public void setOnPreviewWindowChangedCallback(CameraPreview.OnPreviewWindowChangedCallback previewWindowChangedCallback) {
-        mPreview.setOnPreviewWindowChangedCallback(previewWindowChangedCallback);
+        this.previewWindowChangedCallback = previewWindowChangedCallback;
     }
 
     public void startCamera(int cameraId) {
