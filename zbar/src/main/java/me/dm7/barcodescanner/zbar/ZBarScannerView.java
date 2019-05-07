@@ -112,7 +112,7 @@ public class ZBarScannerView extends BarcodeScannerView {
             int result = mScanner.scanImage(barcode);
 
             if (result != 0) {
-                stopCamera();
+                stopCameraPreview();
                 SymbolSet syms = mScanner.getResults();
                 final Result rawResult = new Result();
                 for (Symbol sym : syms) {
