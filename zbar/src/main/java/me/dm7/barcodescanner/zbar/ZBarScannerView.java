@@ -2,13 +2,10 @@ package me.dm7.barcodescanner.zbar;
 
 import android.content.Context;
 import android.content.res.Configuration;
-import android.graphics.Rect;
 import android.hardware.Camera;
-import android.os.Handler;
-import android.os.Looper;
+import android.os.SystemClock;
 import android.text.TextUtils;
 import android.util.AttributeSet;
-import android.util.Log;
 
 import net.sourceforge.zbar.Config;
 import net.sourceforge.zbar.Image;
@@ -24,7 +21,6 @@ import me.dm7.barcodescanner.core.BarcodeScannerView;
 import me.dm7.barcodescanner.core.DisplayUtils;
 
 public class ZBarScannerView extends BarcodeScannerView {
-    private static final String TAG = "ZBarScannerView";
 
     public interface ResultHandler {
         public void handleResult(Result rawResult);
@@ -75,8 +71,19 @@ public class ZBarScannerView extends BarcodeScannerView {
         }
     }
 
+    public long lastCameraPreviewScan = 0;
+
     @Override
     public void onPreviewFrame(byte[] data, Camera camera) {
+        long currentUpTime = SystemClock.uptimeMillis();
+        if(lastCameraPreviewScan+250 > currentUpTime) {
+            // Only handle results every 250 ms
+            camera.setOneShotPreviewCallback(this);
+            return;
+        }
+
+        lastCameraPreviewScan = currentUpTime;
+
         if(mResultHandler == null) {
             return;
         }
@@ -97,14 +104,15 @@ public class ZBarScannerView extends BarcodeScannerView {
                 data = getRotatedData(data, camera);
             }
 
-            Rect rect = getFramingRectInPreview(width, height);
+            // Rect rect = getFramingRectInPreview(width, height);
             Image barcode = new Image(width, height, "Y800");
             barcode.setData(data);
-            barcode.setCrop(rect.left, rect.top, rect.width(), rect.height());
+            // barcode.setCrop(rect.left, rect.top, rect.width(), rect.height());
 
             int result = mScanner.scanImage(barcode);
 
             if (result != 0) {
+                stopCamera();
                 SymbolSet syms = mScanner.getResults();
                 final Result rawResult = new Result();
                 for (Symbol sym : syms) {
@@ -125,28 +133,13 @@ public class ZBarScannerView extends BarcodeScannerView {
                     }
                 }
 
-                Handler handler = new Handler(Looper.getMainLooper());
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        // Stopping the preview can take a little long.
-                        // So we want to set result handler to null to discard subsequent calls to
-                        // onPreviewFrame.
-                        ResultHandler tmpResultHandler = mResultHandler;
-                        mResultHandler = null;
-                        
-                        stopCameraPreview();
-                        if (tmpResultHandler != null) {
-                            tmpResultHandler.handleResult(rawResult);
-                        }
-                    }
-                });
+                mResultHandler.handleResult(rawResult);
             } else {
                 camera.setOneShotPreviewCallback(this);
             }
         } catch(RuntimeException e) {
             // TODO: Terrible hack. It is possible that this method is invoked after camera is released.
-            Log.e(TAG, e.toString(), e);
+            e.printStackTrace();
         }
     }
 
