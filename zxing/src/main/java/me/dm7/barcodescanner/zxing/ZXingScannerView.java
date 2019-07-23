@@ -75,6 +75,7 @@ public class ZXingScannerView extends BarcodeScannerView {
     }
 
     public void setResultHandler(ResultHandler resultHandler) {
+        System.out.println("SET RESULT HANDLER - " + resultHandler);
         mResultHandler = resultHandler;
     }
 
@@ -86,6 +87,7 @@ public class ZXingScannerView extends BarcodeScannerView {
     }
 
     private void initMultiFormatReader() {
+        System.out.println("INIT");
         Map<DecodeHintType,Object> hints = new EnumMap<>(DecodeHintType.class);
         hints.put(DecodeHintType.POSSIBLE_FORMATS, getFormats());
         mMultiFormatReader = new MultiFormatReader();
@@ -106,6 +108,7 @@ public class ZXingScannerView extends BarcodeScannerView {
         lastCameraPreviewScan = currentUpTime;
 
         if(mResultHandler == null) {
+            System.out.println("RESULT HANDLER NULL");
             return;
         }
         
@@ -171,6 +174,7 @@ public class ZXingScannerView extends BarcodeScannerView {
     }
 
     public void resumeCameraPreview(ResultHandler resultHandler) {
+        System.out.println("RESUME CAMERA PREVIEW");
         mResultHandler = resultHandler;
         super.resumeCameraPreview();
     }
