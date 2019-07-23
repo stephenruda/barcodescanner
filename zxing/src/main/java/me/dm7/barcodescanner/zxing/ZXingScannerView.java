@@ -158,7 +158,8 @@ public class ZXingScannerView extends BarcodeScannerView {
             final Result finalRawResult = rawResult;
 
             if (finalRawResult != null) {
-                stopCameraPreview();
+                // Let's try not stopping the camera here - we will stop it at the app end
+                //stopCameraPreview();
                 mResultHandler.handleResult(rawResult);
             } else {
                 camera.setOneShotPreviewCallback(this);
