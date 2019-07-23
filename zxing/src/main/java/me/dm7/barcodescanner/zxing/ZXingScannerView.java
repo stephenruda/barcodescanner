@@ -98,6 +98,7 @@ public class ZXingScannerView extends BarcodeScannerView {
 
     @Override
     public void onPreviewFrame(byte[] data, Camera camera) {
+        System.out.println("preview");
         long currentUpTime = SystemClock.uptimeMillis();
         if(lastCameraPreviewScan+250 > currentUpTime) {
             // Only handle results every 200ms
@@ -109,6 +110,7 @@ public class ZXingScannerView extends BarcodeScannerView {
 
         if(mResultHandler == null) {
             System.out.println("RESULT HANDLER NULL");
+            camera.setOneShotPreviewCallback(this);
             return;
         }
         
@@ -163,6 +165,7 @@ public class ZXingScannerView extends BarcodeScannerView {
             if (finalRawResult != null) {
                 // Let's try not stopping the camera here - we will stop it at the app end
                 //stopCameraPreview();
+                globalCamera = camera;
                 mResultHandler.handleResult(rawResult);
             } else {
                 camera.setOneShotPreviewCallback(this);
@@ -172,6 +175,8 @@ public class ZXingScannerView extends BarcodeScannerView {
             Log.e(TAG, e.toString(), e);
         }
     }
+
+    public Camera globalCamera;
 
     public void resumeCameraPreview(ResultHandler resultHandler) {
         System.out.println("RESUME CAMERA PREVIEW");
